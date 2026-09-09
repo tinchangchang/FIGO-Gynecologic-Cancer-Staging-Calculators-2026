@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-echo Starting FIGO Ovarian Offline Web App at:
+echo Starting FIGO Combined Staging App at:
 echo http://localhost:8000
 echo.
 echo Keep this window open while using the laptop browser.

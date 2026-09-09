@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b1e3f" />
+  <meta name="description" content="FIGO vulvar cancer staging calculator based on the 2021 FIGO staging revision." />
+  <title>FIGO Vulvar Cancer Staging Calculator</title>
+  <style>
+    :root { --figo:#8b1e3f; --figo-dark:#65142d; --ink:#1e2228; --muted:#69707d; --line:#dde2ea; --bg:#f6f7fb; --card:#fff; --soft:#f9eef3; --shadow:0 18px 45px rgba(21,26,39,.08); --radius:18px; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-height:100%; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,"Noto Sans",sans-serif; color:var(--ink); background:radial-gradient(circle at top left,#fff 0,#fff 22rem,var(--bg) 22rem),var(--bg); line-height:1.45; }
+    .wrap { width:min(1120px,100%); margin:0 auto; padding:24px clamp(14px,3vw,32px) 42px; }
+    header { display:grid; gap:10px; margin-bottom:18px; }
+    h1 { margin:0; color:#8b0f0f; font-size:clamp(1.28rem,4.2vw,2.05rem); line-height:1.12; letter-spacing:-.015em; }
+    .home-link { width:max-content; display:inline-flex; align-items:center; border-radius:999px; padding:9px 13px; color:var(--figo); background:var(--soft); font-size:1.08rem; font-weight:850; text-decoration:none; }
+    .home-link:focus { outline:3px solid rgba(139,30,63,.16); }
+    .subhead { margin:0; color:var(--muted); max-width:860px; font-size:.98rem; }
+    .grid { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr); gap:18px; align-items:start; }
+    .card { background:rgba(255,255,255,.94); border:1px solid rgba(221,226,234,.92); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .card h2 { margin:0; padding:18px 20px 8px; font-size:1.1rem; letter-spacing:-.01em; }
+    form { padding:4px 20px 20px; }
+    fieldset { border:0; border-top:1px solid var(--line); margin:0; padding:18px 0 4px; }
+    fieldset:first-of-type { border-top:0; padding-top:6px; }
+    .section-title { margin:4px 0 12px; color:var(--figo); font-weight:800; font-style:italic; font-size:.98rem; }
+    .field { display:grid; grid-template-columns:minmax(165px,.62fr) minmax(0,1fr); gap:12px; align-items:start; margin:0 0 14px; }
+    label { font-weight:780; padding-top:10px; font-size:.94rem; }
+    .hint { display:block; color:var(--muted); font-weight:520; font-size:.78rem; margin-top:3px; }
+    select { width:100%; appearance:none; border:1px solid #cfd7e3; border-radius:13px; padding:12px 42px 12px 12px; min-height:46px; font:inherit; color:var(--ink); background:linear-gradient(45deg,transparent 50%,var(--muted) 50%) calc(100% - 18px) calc(50% - 3px)/7px 7px no-repeat,linear-gradient(135deg,var(--muted) 50%,transparent 50%) calc(100% - 13px) calc(50% - 3px)/7px 7px no-repeat,#fff; }
+    select:focus { outline:3px solid rgba(139,30,63,.16); border-color:var(--figo); }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; padding-top:8px; }
+    button { border:0; border-radius:999px; padding:11px 16px; font-weight:800; font:inherit; cursor:pointer; }
+    .secondary { color:var(--figo); background:var(--soft); }
+    .ghost { color:var(--muted); background:transparent; border:1px solid var(--line); }
+    .result-card { position:sticky; top:14px; }
+    .result-main { padding:20px; background:linear-gradient(145deg,#fff,#fff9fb); border-bottom:1px solid var(--line); }
+    .stage-label { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin:0 0 6px; }
+    .stage { margin:0; color:var(--figo); font-size:clamp(2.1rem,9vw,4rem); font-weight:900; letter-spacing:-.05em; line-height:1; }
+    .stage.empty { color:var(--muted); font-size:clamp(1.6rem,7vw,2.4rem); letter-spacing:-.025em; }
+    .stage sub, .stage-box sub { font-size:.36em; vertical-align:sub; letter-spacing:0; margin-left:1px; }
+    
+    .stage-box { border:1px solid var(--line); border-radius:14px; background:#fff; padding:12px; }
+    .stage-box strong { display:block; color:var(--muted); font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
+    .stage-box span { display:block; color:var(--figo); font-size:1.5rem; font-weight:900; line-height:1.05; }
+    .reason { margin:12px 0 0; color:var(--ink); font-size:1rem; }
+    .support { padding:16px 20px 20px; }
+    .support h3 { margin:0 0 8px; font-size:.95rem; }
+    .support ul { margin:0; padding-left:20px; color:var(--muted); }
+    .support li { margin:6px 0; }
+    .badge-row { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0; }
+    .badge { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; background:#fff; border:1px solid var(--line); color:var(--muted); font-size:.78rem; font-weight:750; }
+    .notice { margin-top:16px; padding:14px 16px; border-radius:15px; border:1px solid #ecd79b; background:#fff8e7; color:#5f4307; font-size:.88rem; }
+    footer { margin-top:18px; color:var(--muted); font-size:.82rem; }
+    footer p { margin:6px 0; }
+    .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; transition:all .22s ease; background:#111827; color:#fff; padding:10px 14px; border-radius:999px; font-weight:700; font-size:.88rem; box-shadow:0 16px 38px rgba(0,0,0,.24); z-index:50; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    @media (max-width:880px) { .grid { grid-template-columns:1fr; } .result-card { position:static; } }
+    @media (max-width:620px) { .wrap { padding-top:18px; } .field { grid-template-columns:1fr; gap:6px; } label { padding-top:0; } .card h2, form, .result-main, .support { padding-left:16px; padding-right:16px; } select { font-size:16px; } .stage-pair { grid-template-columns:1fr; } .actions button { flex:1 1 100%; } }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="home-link" href="../index.html">Main Menu</a>
+      <h1>FIGO Vulvar Cancer Staging Calculator</h1>
+      <p class="subhead">Select primary vulvar tumor, adjacent-structure, nodal, fixation, and distant-metastasis findings.</p>
+    </header>
+    <main class="grid">
+      <section class="card" aria-label="Vulvar cancer staging inputs">
+        <form id="stageForm">
+          <fieldset><p class="section-title">Primary tumor</p><div class="field"><label for="primaryTumor">Primary tumor extent</label><select id="primaryTumor" name="primaryTumor"><option value="" disabled selected hidden>Select...</option><option value="confined-ia">Confined to vulva, size ≤2 cm and stromal invasion ≤1 mm</option><option value="confined-ib">Confined to vulva, size >2 cm or stromal invasion >1 mm</option><option value="lower-structures">Extension to lower third urethra, lower third vagina, or lower third anus</option><option value="upper-structures">Extension to upper urethra/vagina, bladder mucosa, or rectal mucosa</option><option value="bone-fixed">Disease fixed to pelvic bone</option></select></div></fieldset>
+          <fieldset><p class="section-title">Lymph nodes and distant disease</p><div class="field"><label for="nodes">Lymph nodes<span class="hint">Regional nodes are inguinal and femoral nodes.</span></label><select id="nodes" name="nodes"><option value="" disabled selected hidden>Select...</option><option value="no">No nodal metastasis selected</option><option value="regional-le-5">Regional lymph-node metastases ≤5 mm, non-fixed/non-ulcerated</option><option value="regional-gt-5">Regional lymph-node metastases >5 mm, non-fixed/non-ulcerated</option><option value="ecs">Regional lymph-node metastases with extracapsular spread</option><option value="fixed-ulcerated">Fixed or ulcerated regional lymph-node metastases</option><option value="pelvic">Pelvic lymph-node metastasis</option></select></div><div class="field"><label for="distant">Distant metastasis</label><select id="distant" name="distant"><option value="" disabled selected hidden>Select...</option><option value="no">No distant metastasis selected</option><option value="yes">Distant metastasis present</option></select></div></fieldset>
+          <div class="actions"><button class="secondary" type="button" id="copyBtn">Copy result</button><button class="ghost" type="reset">Reset</button></div>
+        </form>
+      </section>
+      <aside class="card result-card" aria-live="polite" aria-labelledby="result-heading"><div class="result-main"><p class="stage-label" id="result-heading">FIGO stage</p><p class="stage empty" id="stageValue">Not determined</p><p class="reason" id="reasonText">Enter the available findings to calculate the stage.</p><div class="badge-row" id="badgeRow"><span class="badge">FIGO vulva 2021</span></div></div><div class="support"><h3>Calculation rationale</h3><ul id="rationaleList"><li>Distant metastasis, fixed bone or fixed/ulcerated nodes, extracapsular nodal spread, and nodal size take priority over lower local tumor findings.</li></ul><div class="notice">This calculator is a staging aid only. Confirm final FIGO stage with complete clinical, imaging, surgical, pathological, nodal, and multidisciplinary information before clinical use.</div></div></aside>
+    </main>
+    <footer><p><strong>Version:</strong> 1.0.0 · Offline-capable HTML calculator.</p><p><strong>Reference:</strong> FIGO staging revision for carcinoma of the vulva.</p></footer>
+  </div>
+  <div class="toast" id="toast">Copied</div>
+  <script>
+    const form = document.getElementById('stageForm');
+    const fields = ['primaryTumor','nodes','distant'];
+    const stageValue = document.getElementById('stageValue');
+    const reasonText = document.getElementById('reasonText');
+    const rationaleList = document.getElementById('rationaleList');
+    const badgeRow = document.getElementById('badgeRow');
+    const toast = document.getElementById('toast');
+    function getInputs() { return Object.fromEntries(fields.map(id => [id, document.getElementById(id).value])); }
+    function stageResult(stage, reason, rationale, badges=[]) { return { stage, reason, rationale:Array.isArray(rationale)?rationale:[rationale], badges }; }
+    function calculateStage(v) {
+      if (v.distant === 'yes' || v.nodes === 'pelvic') return stageResult('IVB','Distant metastasis is present.',['Stage IVB is distant metastasis. Pelvic lymph-node metastasis is treated as non-regional/distant disease because regional nodes are inguinal and femoral.'],['Distant disease']);
+      if (v.primaryTumor === 'bone-fixed' || v.nodes === 'fixed-ulcerated') return stageResult('IVA','Disease is fixed to pelvic bone or regional lymph-node metastasis is fixed/ulcerated.',['Stage IVA is disease fixed to pelvic bone, or fixed or ulcerated regional lymph-node metastases.'],['Fixed/ulcerated']);
+      if (v.nodes === 'ecs') return stageResult('IIIC','Regional lymph-node metastasis with extracapsular spread is present.',['Stage IIIC is regional lymph-node metastasis with extracapsular spread.'],['Extracapsular spread']);
+      if (v.nodes === 'regional-gt-5') return stageResult('IIIB','Regional lymph-node metastasis greater than 5 mm is present.',['Stage IIIB is regional lymph-node metastasis >5 mm, non-fixed and non-ulcerated.'],['Regional node >5 mm']);
+      if (v.nodes === 'regional-le-5') return stageResult('IIIA','Regional lymph-node metastasis 5 mm or smaller is present.',['Stage IIIA includes regional lymph-node metastases ≤5 mm, non-fixed and non-ulcerated.'],['Regional node ≤5 mm']);
+      if (v.primaryTumor === 'upper-structures') return stageResult('IIIA','Tumor extends to upper adjacent perineal structures.',['Stage IIIA includes extension to upper two-thirds urethra/vagina, bladder mucosa, or rectal mucosa.'],['Upper adjacent structures']);
+      if (v.primaryTumor === 'lower-structures') return stageResult('II','Tumor extends to lower adjacent perineal structures with no higher-stage finding selected.',['Stage II is extension to lower third urethra, lower third vagina, or lower third anus with negative nodes.'],['Lower adjacent structures']);
+      if (v.primaryTumor === 'confined-ib') return stageResult('IB','Tumor is confined to vulva but size or invasion exceeds IA limits.',['Stage IB is tumor size >2 cm or stromal invasion >1 mm, confined to the vulva.'],['Confined vulva']);
+      if (v.primaryTumor === 'confined-ia') return stageResult('IA','Tumor is confined to vulva with size ≤2 cm and stromal invasion ≤1 mm.',['Stage IA is tumor size ≤2 cm and stromal invasion ≤1 mm.'],['Confined vulva']);
+      return stageResult('','Insufficient information to determine the FIGO stage.',['Select primary tumor extent and nodal/distant disease findings.'],['Needs input']);
+    }
+    function escapeHtml(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function renderResult(res) { if (res.stage) { stageValue.textContent=res.stage; stageValue.classList.remove('empty'); } else { stageValue.textContent='Not determined'; stageValue.classList.add('empty'); } reasonText.textContent=res.reason; rationaleList.innerHTML=res.rationale.map(item=>`<li>${escapeHtml(item)}</li>`).join(''); badgeRow.innerHTML=res.badges.map(item=>`<span class="badge">${escapeHtml(item)}</span>`).join(''); }
+    function update() { const res = calculateStage(getInputs()); renderResult(res); return res; }
+    function showToast(text) { toast.textContent=text; toast.classList.add('show'); window.setTimeout(()=>toast.classList.remove('show'),1800); }
+    fields.forEach(id => document.getElementById(id).addEventListener('change', update));
+    form.addEventListener('reset', () => window.setTimeout(update, 0));
+    document.getElementById('copyBtn').addEventListener('click', async () => { const res=update(); const lines=[`FIGO vulvar cancer stage: ${res.stage || 'Not determined'}`,`Reason: ${res.reason}`,'','Generated by FIGO Vulvar Cancer Staging Calculator v1.0.0.']; try { await navigator.clipboard.writeText(lines.join('\n')); showToast('Result copied'); } catch (err) { showToast('Copy unavailable'); } });
+    update();
+  </script>
+</body>
+</html>

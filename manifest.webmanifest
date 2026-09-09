@@ -1,7 +1,7 @@
 {
-  "name": "FIGO Epithelial Ovarian, Fallopian Tube, and Peritoneal Cancer Staging Calculator",
-  "short_name": "FIGO Ovary",
-  "description": "Offline FIGO 2014 staging calculator for epithelial ovarian, fallopian tube, and peritoneal cancer.",
+  "name": "FIGO Gynecologic Cancer Staging Calculators 2026",
+  "short_name": "FIGO Staging",
+  "description": "Offline-capable FIGO gynecologic cancer staging calculator app.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

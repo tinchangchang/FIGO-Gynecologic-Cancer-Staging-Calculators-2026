@@ -1,11 +1,19 @@
-const CACHE_NAME = 'figo-ovarian-stage-v1.0.0';
+const CACHE_NAME = 'figo-combined-staging-v1.2.1';
 const ASSETS = [
   './',
   './index.html',
+  './start.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './calculators/cervical.html',
+  './calculators/endometrial.html',
+  './calculators/ovarian-fallopian-peritoneal.html',
+  './calculators/gtn.html',
+  './calculators/uterine-leiomyosarcoma.html',
+  './calculators/vaginal.html',
+  './calculators/vulvar.html'
 ];
 
 self.addEventListener('install', event => {

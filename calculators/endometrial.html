@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b1e3f" />
+  <meta name="description" content="FIGO 2023 endometrial cancer staging calculator with molecular classification." />
+  <title>FIGO Endometrial Cancer Staging Calculator</title>
+  <style>
+    :root { --figo:#8b1e3f; --figo-dark:#65142d; --ink:#1e2228; --muted:#69707d; --line:#dde2ea; --bg:#f6f7fb; --card:#fff; --soft:#f9eef3; --shadow:0 18px 45px rgba(21,26,39,.08); --radius:18px; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-height:100%; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,"Noto Sans",sans-serif; color:var(--ink); background:radial-gradient(circle at top left,#fff 0,#fff 22rem,var(--bg) 22rem),var(--bg); line-height:1.45; }
+    .wrap { width:min(1120px,100%); margin:0 auto; padding:24px clamp(14px,3vw,32px) 42px; }
+    header { display:grid; gap:10px; margin-bottom:18px; }
+    h1 { margin:0; color:#8b0f0f; font-size:clamp(1.28rem,4.2vw,2.05rem); line-height:1.12; letter-spacing:-.015em; }
+    .home-link { width:max-content; display:inline-flex; align-items:center; border-radius:999px; padding:9px 13px; color:var(--figo); background:var(--soft); font-size:1.08rem; font-weight:850; text-decoration:none; }
+    .home-link:focus { outline:3px solid rgba(139,30,63,.16); }
+    .subhead { margin:0; color:var(--muted); max-width:860px; font-size:.98rem; }
+    .grid { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr); gap:18px; align-items:start; }
+    .card { background:rgba(255,255,255,.94); border:1px solid rgba(221,226,234,.92); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .card h2 { margin:0; padding:18px 20px 8px; font-size:1.1rem; letter-spacing:-.01em; }
+    form { padding:4px 20px 20px; }
+    fieldset { border:0; border-top:1px solid var(--line); margin:0; padding:18px 0 4px; }
+    fieldset:first-of-type { border-top:0; padding-top:6px; }
+    .section-title { margin:4px 0 12px; color:var(--figo); font-weight:800; font-style:italic; font-size:.98rem; }
+    .field { display:grid; grid-template-columns:minmax(165px,.62fr) minmax(0,1fr); gap:12px; align-items:start; margin:0 0 14px; }
+    label { font-weight:780; padding-top:10px; font-size:.94rem; }
+    .hint { display:block; color:var(--muted); font-weight:520; font-size:.78rem; margin-top:3px; }
+    select { width:100%; appearance:none; border:1px solid #cfd7e3; border-radius:13px; padding:12px 42px 12px 12px; min-height:46px; font:inherit; color:var(--ink); background:linear-gradient(45deg,transparent 50%,var(--muted) 50%) calc(100% - 18px) calc(50% - 3px)/7px 7px no-repeat,linear-gradient(135deg,var(--muted) 50%,transparent 50%) calc(100% - 13px) calc(50% - 3px)/7px 7px no-repeat,#fff; }
+    select:focus { outline:3px solid rgba(139,30,63,.16); border-color:var(--figo); }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; padding-top:8px; }
+    button { border:0; border-radius:999px; padding:11px 16px; font-weight:800; font:inherit; cursor:pointer; }
+    .secondary { color:var(--figo); background:var(--soft); }
+    .ghost { color:var(--muted); background:transparent; border:1px solid var(--line); }
+    .result-card { position:sticky; top:14px; }
+    .result-main { padding:20px; background:linear-gradient(145deg,#fff,#fff9fb); border-bottom:1px solid var(--line); }
+    .stage-label { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin:0 0 6px; }
+    .stage { margin:0; color:var(--figo); font-size:clamp(2.1rem,9vw,4rem); font-weight:900; letter-spacing:-.05em; line-height:1; }
+    .stage.empty { color:var(--muted); font-size:clamp(1.6rem,7vw,2.4rem); letter-spacing:-.025em; }
+    .stage sub, .stage-box sub { font-size:.36em; vertical-align:sub; letter-spacing:0; margin-left:1px; }
+    .stage-pair { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+    .stage-box { border:1px solid var(--line); border-radius:14px; background:#fff; padding:12px; }
+    .stage-box strong { display:block; color:var(--muted); font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
+    .stage-box span { display:block; color:var(--figo); font-size:1.5rem; font-weight:900; line-height:1.05; }
+    .reason { margin:12px 0 0; color:var(--ink); font-size:1rem; }
+    .support { padding:16px 20px 20px; }
+    .support h3 { margin:0 0 8px; font-size:.95rem; }
+    .support ul { margin:0; padding-left:20px; color:var(--muted); }
+    .support li { margin:6px 0; }
+    .badge-row { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0; }
+    .badge { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; background:#fff; border:1px solid var(--line); color:var(--muted); font-size:.78rem; font-weight:750; }
+    .notice { margin-top:16px; padding:14px 16px; border-radius:15px; border:1px solid #ecd79b; background:#fff8e7; color:#5f4307; font-size:.88rem; }
+    footer { margin-top:18px; color:var(--muted); font-size:.82rem; }
+    footer p { margin:6px 0; }
+    .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; transition:all .22s ease; background:#111827; color:#fff; padding:10px 14px; border-radius:999px; font-weight:700; font-size:.88rem; box-shadow:0 16px 38px rgba(0,0,0,.24); z-index:50; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    @media (max-width:880px) { .grid { grid-template-columns:1fr; } .result-card { position:static; } }
+    @media (max-width:620px) { .wrap { padding-top:18px; } .field { grid-template-columns:1fr; gap:6px; } label { padding-top:0; } .card h2, form, .result-main, .support { padding-left:16px; padding-right:16px; } select { font-size:16px; } .stage-pair { grid-template-columns:1fr; } .actions button { flex:1 1 100%; } }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="home-link" href="../index.html">Main Menu</a>
+      <h1>FIGO Staging for Carcinoma of Endometrium 2023</h1>
+      <p class="subhead">Select anatomic, histologic, LVSI, nodal, distant, and molecular findings.</p>
+    </header>
+
+    <main class="grid">
+      <section class="card" aria-label="Endometrial cancer staging inputs">
+        <form id="stageForm">
+          <fieldset>
+            <p class="section-title">Primary tumor and histology</p>
+            <div class="field"><label for="histology">Histology</label><select id="histology" name="histology"><option value="" disabled selected hidden>Select...</option><option value="low-grade">Low grade endometrioid (G1/G2)</option><option value="high-grade">High grade endometrioid (G3)</option><option value="serous">Serous carcinoma</option><option value="clear-cell">Clear cell carcinoma</option><option value="carcinosarcoma">Carcinosarcoma</option><option value="undifferentiated">Undifferentiated / dedifferentiated carcinoma</option><option value="mixed">Mixed carcinoma</option><option value="other-aggressive">Other aggressive histology</option></select></div>
+            <div class="field"><label for="myoinvasion">Myometrial invasion</label><select id="myoinvasion" name="myoinvasion"><option value="" disabled selected hidden>Select...</option><option value="none">Limited to polyp/endometrium; no myometrial invasion</option><option value="lt50">&lt;50%</option><option value="ge50">≥50%</option><option value="unknown">Invasion present, depth not specified</option></select></div>
+            <div class="field"><label for="lvsi">LVSI<span class="hint">WHO/FIGO categories: negative = 0 vessels; focal = &lt;5 vessels; substantial/extensive = ≥5 vessels.</span></label><select id="lvsi" name="lvsi"><option value="" disabled selected hidden>Select...</option><option value="none">LVSI negative / absent (0 vessels)</option><option value="focal">Focal LVSI (&lt;5 vessels involved)</option><option value="substantial">Substantial/extensive LVSI (≥5 vessels involved)</option><option value="unknown">Unknown / not assessed</option></select></div>
+            <div class="field"><label for="cervix">Cervical stromal invasion</label><select id="cervix" name="cervix"><option value="" disabled selected hidden>Select...</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+          </fieldset>
+
+          <fieldset>
+            <p class="section-title">Local and regional spread</p>
+            <div class="field"><label for="ovary">Ovary<span class="hint">IA3 requires low-grade endometrioid carcinoma limited to uterus and ovary, &lt;50% myometrial invasion, no substantial LVSI, unilateral ovarian tumor without capsule invasion/breach, and no other metastasis.</span></label><select id="ovary" name="ovary"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="ia3">Involved, all IA3 uterus-and-ovary criteria fulfilled</option><option value="involved">Involved, IA3 criteria not fulfilled</option></select></div>
+            <div class="field"><label for="tube">Fallopian tube</label><select id="tube" name="tube"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="involved">Involved</option></select></div>
+            <div class="field"><label for="serosa">Uterine subserosa/serosa</label><select id="serosa" name="serosa"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="involved">Involved</option></select></div>
+            <div class="field"><label for="vaginaParametria">Vagina / parametria</label><select id="vaginaParametria" name="vaginaParametria"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="vagina">Vagina involved</option><option value="parametria">Parametria involved</option><option value="both">Both vagina and parametria involved</option></select></div>
+            <div class="field"><label for="peritoneum">Peritoneum</label><select id="peritoneum" name="peritoneum"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="pelvic">Pelvic peritoneum</option><option value="abdominal">Abdominal peritoneum beyond pelvis</option></select></div>
+            <div class="field"><label for="nodes">Lymph node</label><select id="nodes" name="nodes"><option value="" disabled selected hidden>Select...</option><option value="no">No metastasis</option><option value="itc">Isolated tumor cells only</option><option value="pelvic-micro">Pelvic lymph node micrometastasis</option><option value="pelvic-macro">Pelvic lymph node macrometastasis</option><option value="pelvic-unspecified">Pelvic lymph node metastasis, size not specified</option><option value="para-micro">Para-aortic lymph node micrometastasis up to renal vessels</option><option value="para-macro">Para-aortic lymph node macrometastasis up to renal vessels</option><option value="para-unspecified">Para-aortic lymph node metastasis up to renal vessels, size not specified</option><option value="above-renal">Lymph node metastasis above renal vessels</option></select></div>
+          </fieldset>
+
+          <fieldset>
+            <p class="section-title">Stage IV findings</p>
+            <div class="field"><label for="bladder">Bladder mucosa</label><select id="bladder" name="bladder"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="yes">Involved</option></select></div>
+            <div class="field"><label for="bowel">Intestinal/bowel mucosa</label><select id="bowel" name="bowel"><option value="" disabled selected hidden>Select...</option><option value="no">Not involved</option><option value="yes">Involved</option></select></div>
+            <div class="field"><label for="distant">Distant metastasis</label><select id="distant" name="distant"><option value="" disabled selected hidden>Select...</option><option value="no">No</option><option value="yes">Yes - lung, liver, brain, bone, or other distant site</option></select></div>
+          </fieldset>
+
+          <fieldset>
+            <p class="section-title">Molecular profile</p>
+            <div class="field"><label for="pole">POLE</label><select id="pole" name="pole"><option value="" disabled selected hidden>Select...</option><option value="unknown">Unknown / not tested</option><option value="mut">Presence of pathogenic mutation</option><option value="absent">No pathogenic mutation</option></select></div>
+            <div class="field"><label for="mmr">MMR</label><select id="mmr" name="mmr"><option value="" disabled selected hidden>Select...</option><option value="unknown">Unknown</option><option value="d">MMRd / MSI-H</option><option value="p">MMR proficient</option></select></div>
+            <div class="field"><label for="p53">p53</label><select id="p53" name="p53"><option value="" disabled selected hidden>Select...</option><option value="unknown">Unknown</option><option value="abn">p53 abnormal</option><option value="wt">p53 wild-type / normal</option></select></div>
+          </fieldset>
+
+          <div class="actions"><button class="secondary" type="button" id="copyBtn">Copy result</button><button class="ghost" type="reset">Reset</button></div>
+        </form>
+      </section>
+
+      <aside class="card result-card" aria-live="polite" aria-labelledby="result-heading">
+        <div class="result-main"><p class="stage-label" id="result-heading">FIGO 2023 stage</p><p class="stage empty" id="stageValue">Not determined</p><p class="reason" id="reasonText">Enter the available findings to calculate the stage.</p><div class="stage-pair"><div class="stage-box"><strong>Without molecular</strong><span id="anatomicStage">-</span></div><div class="stage-box"><strong>With molecular</strong><span id="molecularStage">-</span></div></div><div class="badge-row" id="badgeRow"><span class="badge">FIGO 2023</span></div></div>
+        <div class="support"><h3>Calculation rationale</h3><ul id="rationaleList"><li>Distant, mucosal, peritoneal, nodal, and extrauterine findings take priority over uterine-confined disease.</li></ul><div class="notice">This calculator is a staging aid only. Confirm final FIGO stage with complete surgical, imaging, histological, LVSI, nodal, cytological, molecular, and multidisciplinary information before clinical use.</div></div>
+      </aside>
+    </main>
+    <footer><p><strong>Version:</strong> 1.0.0 · Offline-capable HTML calculator.</p><p><strong>Reference:</strong> Berek JS, Matias-Guiu X, Creutzberg C, et al. FIGO staging of endometrial cancer: 2023.</p></footer>
+  </div>
+  <div class="toast" id="toast">Copied</div>
+  <script>
+    const form = document.getElementById('stageForm');
+    const fields = ['histology','myoinvasion','lvsi','cervix','ovary','tube','serosa','vaginaParametria','peritoneum','nodes','bladder','bowel','distant','pole','mmr','p53'];
+    const stageValue = document.getElementById('stageValue');
+    const anatomicStage = document.getElementById('anatomicStage');
+    const molecularStage = document.getElementById('molecularStage');
+    const reasonText = document.getElementById('reasonText');
+    const rationaleList = document.getElementById('rationaleList');
+    const badgeRow = document.getElementById('badgeRow');
+    const toast = document.getElementById('toast');
+    function getInputs() { return Object.fromEntries(fields.map(id => [id, document.getElementById(id).value])); }
+    function aggressive(v) { return ['high-grade','serous','clear-cell','carcinosarcoma','undifferentiated','mixed','other-aggressive'].includes(v.histology); }
+    function result(stage, reason, rationale, badges=[]) { return { stage, reason, rationale:Array.isArray(rationale)?rationale:[rationale], badges }; }
+    function noOrFocalLvsi(v) { return ['none','focal','none-focal'].includes(v.lvsi); }
+    function calculateAnatomic(v) {
+      if (v.distant === 'yes' || v.nodes === 'above-renal') return result('IVC','Distant metastasis is present.',['Stage IVC includes distant metastasis, including lymph nodes above the renal vessels, lungs, liver, brain, or bone.'],['Distant metastasis']);
+      if (v.peritoneum === 'abdominal') return result('IVB','Abdominal peritoneal metastasis beyond the pelvis is present.',['Stage IVB is abdominal peritoneal metastasis beyond the pelvis.'],['Abdominal peritoneum']);
+      if (v.bladder === 'yes' || v.bowel === 'yes') return result('IVA','Bladder and/or intestinal/bowel mucosal invasion is present.',['Stage IVA is invasion of bladder mucosa and/or intestinal/bowel mucosa.'],['Mucosal invasion']);
+      if (v.nodes === 'para-micro') return result('IIIC2i','Para-aortic lymph node micrometastasis is present.',['Stage IIIC2i is para-aortic lymph-node micrometastasis up to the renal vessels, with or without pelvic nodes.'],['Para-aortic node','Micrometastasis']);
+      if (v.nodes === 'para-macro') return result('IIIC2ii','Para-aortic lymph node macrometastasis is present.',['Stage IIIC2ii is para-aortic lymph-node macrometastasis up to the renal vessels, with or without pelvic nodes.'],['Para-aortic node','Macrometastasis']);
+      if (v.nodes === 'para-unspecified') return result('IIIC2','Para-aortic lymph node metastasis is present.',['Stage IIIC2 is para-aortic lymph-node metastasis up to the renal vessels; select micro versus macro if known.'],['Para-aortic node']);
+      if (v.nodes === 'pelvic-micro') return result('IIIC1i','Pelvic lymph node micrometastasis is present.',['Stage IIIC1i is pelvic lymph-node micrometastasis.'],['Pelvic node','Micrometastasis']);
+      if (v.nodes === 'pelvic-macro') return result('IIIC1ii','Pelvic lymph node macrometastasis is present.',['Stage IIIC1ii is pelvic lymph-node macrometastasis.'],['Pelvic node','Macrometastasis']);
+      if (v.nodes === 'pelvic-unspecified') return result('IIIC1','Pelvic lymph node metastasis is present.',['Stage IIIC1 is pelvic lymph-node metastasis; select micro versus macro if known.'],['Pelvic node']);
+      if (v.peritoneum === 'pelvic') return result('IIIB2','Pelvic peritoneal metastasis is present.',['Stage IIIB2 is metastasis to the pelvic peritoneum.'],['Pelvic peritoneum']);
+      if (['vagina','parametria','both'].includes(v.vaginaParametria)) return result('IIIB1','Tumor spreads directly or metastatically to the vagina and/or parametria.',['Stage IIIB1 is metastasis or direct spread to the vagina and/or parametria.'],['Vagina/parametria']);
+      if (v.serosa === 'involved') return result('IIIA2','Uterine subserosa or serosa is involved.',['Stage IIIA2 is involvement of uterine subserosa or spread through the uterine serosa.'],['Serosa']);
+      if (v.tube === 'involved' || v.ovary === 'involved') return result('IIIA1','Ovary or fallopian tube involvement is present.',['Stage IIIA1 is spread to ovary or fallopian tube, except low-grade cases meeting IA3 criteria.'],['Adnexa']);
+      if (v.ovary === 'ia3') return result('IA3','Low-grade endometrioid carcinoma is limited to uterus and ovary and meets IA3 criteria.',['Stage IA3 applies only when low-grade endometrioid carcinoma meets all uterus-and-ovary good-prognosis criteria.'],['IA3 criteria']);
+      if (aggressive(v) && ['lt50','ge50','unknown'].includes(v.myoinvasion)) return result('IIC','Aggressive histological type has myometrial involvement.',['Stage IIC is aggressive histological type with any myometrial involvement.'],['Aggressive histology']);
+      if (v.histology === 'low-grade' && v.lvsi === 'substantial') return result('IIB','Substantial LVSI is present in a non-aggressive histological type.',['Stage IIB is substantial LVSI in non-aggressive histological types.'],['Substantial LVSI']);
+      if (v.histology === 'low-grade' && v.cervix === 'yes') return result('IIA','Cervical stromal invasion is present in a non-aggressive histological type.',['Stage IIA is cervical stromal invasion of non-aggressive histological types.'],['Cervical stroma']);
+      if (aggressive(v) && v.myoinvasion === 'none') return result('IC','Aggressive histological type is limited to a polyp or confined to the endometrium.',['Stage IC is aggressive histological type limited to a polyp or confined to the endometrium.'],['Aggressive histology']);
+      if (v.histology === 'low-grade' && v.myoinvasion === 'ge50' && noOrFocalLvsi(v)) return result('IB','Low-grade endometrioid carcinoma invades half or more of the myometrium with no/focal LVSI selected.',['Stage IB is non-aggressive histological type with ≥50% myometrial invasion and no/focal LVSI.'],['≥50% myoinvasion']);
+      if (v.histology === 'low-grade' && v.myoinvasion === 'lt50' && noOrFocalLvsi(v)) return result('IA2','Low-grade endometrioid carcinoma involves less than half of the myometrium with no/focal LVSI selected.',['Stage IA2 is non-aggressive histological type involving <50% of the myometrium with no/focal LVSI.'],['<50% myoinvasion']);
+      if (v.histology === 'low-grade' && v.myoinvasion === 'none') return result('IA1','Low-grade endometrioid carcinoma is limited to a polyp or confined to the endometrium.',['Stage IA1 is non-aggressive histological type limited to an endometrial polyp or confined to the endometrium.'],['Endometrium/polyp']);
+      if (v.histology || v.myoinvasion) return result('','More information is needed to assign the FIGO 2023 stage.',['Select histology, myometrial invasion, LVSI, and all extrauterine spread fields relevant to the case.'],['Needs details']);
+      return result('','Insufficient information to determine the FIGO 2023 stage.',['Select at least one decisive finding.'],['Needs input']);
+    }
+    function molecularDesignation(v, anatomic) {
+      if (!anatomic.stage) return { stage:'', note:'Molecular stage cannot be assigned until anatomic/histologic stage is determined.', badges:[] };
+      const stage = anatomic.stage;
+      const early = stage.startsWith('I') && !stage.startsWith('III') && !stage.startsWith('IV');
+      const hasMyoinvasion = ['lt50','ge50','unknown'].includes(v.myoinvasion);
+      if (v.pole === 'mut' && early) return { stage:'IA_mPOLEmut', note:'Pathogenic POLE mutation modifies early FIGO stage to IA with subscript mPOLEmut.', badges:['POLEmut'] };
+      if (v.p53 === 'abn' && early && hasMyoinvasion) return { stage:'IIC_mp53abn', note:'p53 abnormal status with early disease and myometrial invasion modifies stage to IIC with subscript mp53abn.', badges:['p53abn'] };
+      let suffix = '';
+      if (v.mmr === 'd') suffix = '_mMMRd'; else if (v.p53 === 'abn') suffix = '_mp53abn'; else if (v.pole === 'mut') suffix = '_mPOLEmut'; else if (v.mmr === 'p' || v.p53 === 'wt' || v.pole === 'absent') suffix = '_mNSMP';
+      if (suffix) return { stage:`${stage}${suffix}`, note:'Molecular subtype is recorded as a FIGO subscript but does not modify this stage category.', badges:[suffix.replace('_m','')] };
+      return { stage, note:'Molecular profile is unknown or not selected; stage is unchanged.', badges:['Molecular unknown'] };
+    }
+    function calculateStage(v) { const anatomic = calculateAnatomic(v); const molecular = molecularDesignation(v, anatomic); return { ...anatomic, molecularStage:molecular.stage, rationale:[...anatomic.rationale, molecular.note], badges:[...anatomic.badges, ...molecular.badges] }; }
+    function escapeHtml(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function plainStage(s) { return String(s || '').replace('_m','m'); }
+    function formatStageHtml(s) { const value = String(s || ''); const parts = value.split('_m'); if (parts.length === 2) return `${escapeHtml(parts[0])}<sub>m${escapeHtml(parts[1])}</sub>`; return escapeHtml(value); }
+    function renderResult(res) { anatomicStage.textContent = res.stage || '-'; molecularStage.innerHTML = formatStageHtml(res.molecularStage) || '-'; if (res.molecularStage || res.stage) { stageValue.innerHTML = formatStageHtml(res.molecularStage || res.stage); stageValue.classList.remove('empty'); } else { stageValue.textContent='Not determined'; stageValue.classList.add('empty'); } reasonText.textContent = res.reason; rationaleList.innerHTML = res.rationale.map(item => `<li>${escapeHtml(item)}</li>`).join(''); badgeRow.innerHTML = res.badges.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join(''); }
+    function update() { const res = calculateStage(getInputs()); renderResult(res); return res; }
+    function showToast(text) { toast.textContent = text; toast.classList.add('show'); window.setTimeout(() => toast.classList.remove('show'), 1800); }
+    fields.forEach(id => document.getElementById(id).addEventListener('change', update));
+    form.addEventListener('reset', () => window.setTimeout(update, 0));
+    document.getElementById('copyBtn').addEventListener('click', async () => { const res = update(); const lines = [`FIGO 2023 stage without molecular classification: ${res.stage || 'Not determined'}`, `FIGO 2023 stage with molecular classification: ${plainStage(res.molecularStage) || 'Not determined'}`, `Reason: ${res.reason}`, '', 'Generated by FIGO Endometrial Cancer Staging Calculator v1.0.0.']; try { await navigator.clipboard.writeText(lines.join('\n')); showToast('Result copied'); } catch (err) { showToast('Copy unavailable'); } });
+    update();
+  </script>
+</body>
+</html>
